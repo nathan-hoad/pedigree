@@ -38,7 +38,12 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 # to create users for servers/daemons, or to create a user for the builder to
 # use when logging in to Pedigree.
 
-import os, sqlite3, getpass
+from __future__ import print_function
+
+import getpass
+import os
+import sqlite3
+import sys
 
 scriptdir = os.path.dirname(os.path.realpath(__file__))
 imagedir = os.path.realpath(scriptdir + "/../images/local")
@@ -49,7 +54,7 @@ configdb = os.path.realpath(scriptdir + "/../build/config.db") # TODO: build dir
 try:
     conn = sqlite3.connect(configdb)
 except:
-    print "Configuration database is not available. Please run 'scons build/config.db'."
+    print("Configuration database is not available. Please run 'scons build/config.db'.")
     exit(2)
 
 # Check for an existing users directory
@@ -65,21 +70,22 @@ def getnextuid():
     return u[0] + 1
 
 def safe_input():
+    input_func = input if sys.version_info[0] == 3 else raw_input
     try:
-        line = raw_input("> ")
+        line = input_func("> ")
     except KeyboardInterrupt:
-        print # a newline
+        print() # a newline
         conn.close()
         exit(1)
     return line
 
 def main_menu(funcmap):
-    print "Select an option below:"
-    print "1. Add a new user"
-    print "2. Change the password of an existing user"
-    print "3. Change attributes of an existing user"
-    print "4. Delete user"
-    print "5. Exit"
+    print("Select an option below:")
+    print("1. Add a new user")
+    print("2. Change the password of an existing user")
+    print("3. Change attributes of an existing user")
+    print("4. Delete user")
+    print("5. Exit")
     
     option = 0
     while True:
@@ -88,11 +94,11 @@ def main_menu(funcmap):
         try:
             option = int(line)
         except ValueError:
-            print "Please enter a number."
+            print("Please enter a number.")
             continue
         
-        if not option in funcmap.keys():
-            print "Please enter a valid option."
+        if option not in funcmap:
+            print("Please enter a valid option.")
             continue
         
         break
@@ -102,14 +108,14 @@ def main_menu(funcmap):
 userattrs = [["fullname", "New User", False], ["groupname", "users", False], ["homedir", "/users/user", False], ["shell", "/applications/bash", False], ["password", "", True]]
 
 def adduser():
-    print "Please type the username for the new user."
+    print("Please type the username for the new user.")
     username = safe_input()
     
     # Make sure the user does not exist.
     q = conn.execute("select uid from users where username=?", [username])
     user = q.fetchone()
     if not user is None:
-        print "User '%s' already exists." % (username,)
+        print("User '%s' already exists." % (username,))
         return
     
     uid = getnextuid()
@@ -124,12 +130,12 @@ def adduser():
                 b = getpass.getpass("Confirm %s: " % (attr[0],))
                 
                 if not a == b:
-                    print "Passwords do not match."
+                    print("Passwords do not match.")
                 else:
                     newattrs += [a]
                     break
         else:
-            data = raw_input("%s [default=%s]: " % (attr[0], attr[1]))
+            data = input("%s [default=%s]: " % (attr[0], attr[1]))
             if data == "":
                 data = attr[1]
             newattrs += [data]
@@ -142,19 +148,19 @@ def adduser():
     homedir = newattrs[4][1:]
     os.mkdir(os.path.join(imagedir, homedir))
     
-    print "Created user '%s'" % (username,)
+    print("Created user '%s'" % (username,))
 
 def validuser(username):
     # Check for a valid user in the database.
     q = conn.execute("select uid, password from users where username=?", [username])
     user = q.fetchone()
     if user is None:
-        print "The user '%s' does not exist." % (username,)
+        print("The user '%s' does not exist." % (username,))
         return False
     return True
 
 def changepassword():
-    print "Please type the username of the user for which you want to change password."
+    print("Please type the username of the user for which you want to change password.")
     username = safe_input()
     
     # Check for a valid user in the database.
@@ -166,7 +172,7 @@ def changepassword():
     user = q.fetchone()
     
     # Confirm the password
-    print "Changing password for '%s'..." % (username,)
+    print("Changing password for '%s'..." % (username,))
     curr = getpass.getpass("Current password: ")
     if curr == user[1]:
         new = getpass.getpass("New password: ")
@@ -175,12 +181,12 @@ def changepassword():
         conn.execute("update users set password=? where uid=?", [new, user[0]])
         conn.commit()
     else:
-        print "Incorrect password."
+        print("Incorrect password.")
     
-    print "Changed password for user '%s'" % (username,)
+    print("Changed password for user '%s'" % (username,))
 
 def changeattr():
-    print "Please type the username of the user for which you want to change attributes."
+    print("Please type the username of the user for which you want to change attributes.")
     username = safe_input()
     
     # Check for a valid user in the database.
@@ -204,7 +210,7 @@ def changeattr():
     n = 0
     for attr in userattrs:
         if not attr[2]:
-            data = raw_input("%s [current=%s]: " % (attr[0], user[attr[0]]))
+            data = input("%s [current=%s]: " % (attr[0], user[attr[0]]))
             if data == "":
                 data = user[attr[0]]
             newattrs += [data]
@@ -230,7 +236,7 @@ def changeattr():
     conn.row_factory = old_factory
 
 def deleteuser():
-    print "Please type the username for the user to delete."
+    print("Please type the username for the user to delete.")
     username = safe_input()
     
     # Check for a valid user in the database.
@@ -245,7 +251,7 @@ def deleteuser():
     conn.execute("delete from users where uid=?", [user[0]])
     conn.commit()
     
-    print "Deleted user '%s'" % (username,)
+    print("Deleted user '%s'" % (username,))
 
 options = {1 : adduser, 2 : changepassword, 3 : changeattr, 4 : deleteuser, 5 : ignore}
 

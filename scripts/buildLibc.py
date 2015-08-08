@@ -37,6 +37,7 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 '''
 
+from __future__ import print_function
 
 import tempfile
 import shutil
@@ -44,11 +45,12 @@ import os
 import sys
 import subprocess
 
+
 def doLibc(builddir, inputLibcA, glue_name, pedigree_c_name, ar, cc, strip, libgcc):
-    print "Building libc...",
-    
+    print("Building libc...", end=' ')
+
     tmpdir = tempfile.mkdtemp()
-    
+
     buildOut = os.path.join(builddir, "libc")
     debugBuildOut = os.path.join(builddir, "libg")
 
@@ -111,13 +113,13 @@ def doLibc(builddir, inputLibcA, glue_name, pedigree_c_name, ar, cc, strip, libg
     args.extend(['lib_a-%s.o' % (x,) for x in objs_to_remove])
     res = subprocess.call(args, cwd=tmpdir)
     if res:
-        print "  (failed -- couldn't remove objects from libc.a)"
+        print("  (failed -- couldn't remove objects from libc.a)")
         exit(res)
 
     args = [ar, "x", glue_name]
     res = subprocess.call(args, cwd=tmpdir)
     if res:
-        print "  (failed -- couldn't extract glue library)"
+        print("  (failed -- couldn't extract glue library)")
         exit(res)
 
     pedigreec_dir = os.path.dirname(pedigree_c_name)
@@ -145,7 +147,7 @@ def doLibc(builddir, inputLibcA, glue_name, pedigree_c_name, ar, cc, strip, libg
 
     res = subprocess.call(cc_cmd, cwd=tmpdir)
     if res != 0:
-        print "  (failed -- to compile libg.so)"
+        print("  (failed -- to compile libg.so)")
         exit(res)
 
     strip_command = [
@@ -157,7 +159,7 @@ def doLibc(builddir, inputLibcA, glue_name, pedigree_c_name, ar, cc, strip, libg
 
     res = subprocess.call(strip_command, cwd=tmpdir)
     if res != 0:
-        print "  (failed -- to strip libg.so)"
+        print("  (failed -- to strip libg.so)")
         exit(res)
 
     # Freshen libc.a with the glue.
@@ -165,7 +167,7 @@ def doLibc(builddir, inputLibcA, glue_name, pedigree_c_name, ar, cc, strip, libg
     args.extend([x for x in os.listdir(tmpdir) if x.endswith('.obj')])
     res = subprocess.call(args, cwd=tmpdir)
     if res:
-        print "  (failed -- couldn't add glue back to libc.a)"
+        print("  (failed -- couldn't add glue back to libc.a)")
         exit(res)
 
     shutil.copy(os.path.join(tmpdir, "libg.a"), debugBuildOut + ".a")
@@ -179,7 +181,7 @@ def doLibc(builddir, inputLibcA, glue_name, pedigree_c_name, ar, cc, strip, libg
 
     res = subprocess.call(strip_command, cwd=tmpdir)
     if res != 0:
-        print "  (failed -- to strip libg.a)"
+        print("  (failed -- to strip libg.a)")
         exit(res)
 
     # Clean up.
@@ -190,6 +192,6 @@ def doLibc(builddir, inputLibcA, glue_name, pedigree_c_name, ar, cc, strip, libg
     if not os.uname()[0] == 'Pedigree':
         os.rmdir(tmpdir) # -ENOSYS on Pedigree host. Should fix that.
 
-    print "ok!"
+    print("ok!")
 
 doLibc(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], "")

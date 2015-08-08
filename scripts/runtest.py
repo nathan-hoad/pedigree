@@ -54,15 +54,15 @@ class Timeout(object):
 def main(argv):
     travis = os.environ.get('TRAVIS')
     if not travis:
-        print 'Not running on Travis, aborting.'
+        print('Not running on Travis, aborting.')
         return 1
 
     target = os.environ.get('EASY_BUILD')
     if not target:
-        print 'Bad Travis configuration - $EASY_BUILD not set.'
+        print('Bad Travis configuration - $EASY_BUILD not set.')
         return 1
     elif target != 'x64':
-        print 'Tests only run on x86-64 currently.'
+        print('Tests only run on x86-64 currently.')
         return 0
 
     scriptdir = os.path.dirname(os.path.realpath(__file__))
@@ -103,11 +103,11 @@ def main(argv):
                     success = True
                     break
     except TimeoutError:
-        print 'Runtime test failure: Pedigree did not boot to the login prompt.'
-        print 'Most recent serial lines:'
-        print '\n'.join(serial[-15:])
+        print('Runtime test failure: Pedigree did not boot to the login prompt.')
+        print('Most recent serial lines:')
+        print('\n'.join(serial[-15:]))
     else:
-        print 'Runtime test success: Pedigree booted to the login prompt.'
+        print('Runtime test success: Pedigree booted to the login prompt.')
 
     # Terminate QEMU now.
     qemu.terminate()

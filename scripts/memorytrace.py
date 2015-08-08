@@ -17,6 +17,8 @@ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 '''
 
+from __future__ import print_function
+
 import os
 import sys
 import struct
@@ -138,7 +140,7 @@ def process_field(f):
         end, = struct.unpack('<L', saferead(f, 4)) # TODO: 64-bit
         metadata.append((metaname, start, end))
     else:
-        print 'Invalid field type %r encountered at offset %d!' % (fieldtype, f.tell() - 5)
+        print('Invalid field type %r encountered at offset %d!' % (fieldtype, f.tell() - 5))
         sys.exit(1)
 
     return True
@@ -158,11 +160,11 @@ def writebt(bt, prefix=''):
         if os.path.exists(mod):
             # Pretty-print, demangle, print function names.
             out = os.popen('addr2line -p -C -f -e %s 0x%x' % (mod, frame - low)).read()
-            print '%s%s' % (prefix, out),
+            print('%s%s' % (prefix, out), end=' ')
         else:
-            print '%s%x (unknown module "%s")' % (prefix, frame, mod,)
+            print('%s%x (unknown module "%s")' % (prefix, frame, mod,))
 
-    print
+    print()
 
 with open(sys.argv[1], 'rb') as f:
     try:
@@ -171,25 +173,25 @@ with open(sys.argv[1], 'rb') as f:
     except EarlyEof:
         pass
 
-    print "Loaded %d allocations and %d frees, and %d metadata items" % (total_allocs, total_frees, len(metadata))
+    print("Loaded %d allocations and %d frees, and %d metadata items" % (total_allocs, total_frees, len(metadata)))
 
     nobacktrace = 'nobacktrace' in sys.argv
 
     if 'unfreed' in sys.argv:
-        print "Unfreed Blocks"
+        print("Unfreed Blocks")
 
         total = 0
-        for ptr, (size, backtrace) in unfreed.iteritems():
+        for ptr, (size, backtrace) in unfreed.items():
             total += size
 
-            print "Unfreed %x of size %d:" % (ptr, size)
+            print("Unfreed %x of size %d:" % (ptr, size))
             if not nobacktrace:
                 writebt(backtrace, '\t')
 
-        print "Total %d bytes left unfreed." % (total)
+        print("Total %d bytes left unfreed." % (total))
 
     if 'counts' in sys.argv:
-        print "Size Distribution"
+        print("Size Distribution")
 
         oneandover = 'oneandover' in sys.argv
 
@@ -199,16 +201,16 @@ with open(sys.argv[1], 'rb') as f:
             if oneandover and (percent < 1.0):
                 continue
 
-            print "%12d:\t%d\t(%f%%)" % (size, count, percent)
+            print("%12d:\t%d\t(%f%%)" % (size, count, percent))
             if not nobacktrace:
                 writebt(backtrace, '\t')
 
-        print
+        print()
 
     if 'toobig' in sys.argv:
-        print "Too Big Blocks"
+        print("Too Big Blocks")
 
-        for ptr, (size, backtrace) in toolarge.iteritems():
-            print "Block %x should perhaps not be on the heap (it is %d bytes, larger than threshold %d):" % (ptr, size, TOO_LARGE_THRESHOLD)
+        for ptr, (size, backtrace) in toolarge.items():
+            print("Block %x should perhaps not be on the heap (it is %d bytes, larger than threshold %d):" % (ptr, size, TOO_LARGE_THRESHOLD))
             if not nobacktrace:
                 writebt(backtrace, '\t')

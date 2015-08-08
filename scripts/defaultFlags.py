@@ -138,7 +138,7 @@ arm_cflags = default_arm_cflags + generic_cflags.replace('-O3', '-O0') + warning
 arm_cxxflags = default_arm_cxxflags + generic_cxxflags.replace('-O3', '-O0') + warning_flags + warning_flags_cxx + warning_flags_off
 arm_asflags = default_arm_asflags
 arm_linkflags = generic_linkflags + default_arm_linkflags
-arm_defines = filter(lambda x: not x == "SERIAL_IS_FILE", generic_defines) + general_arm_defines
+arm_defines = [x for x in generic_defines if x != "SERIAL_IS_FILE"] + general_arm_defines
 
 #------------------------- Import Dictionaries -------------------------#
 default_cflags      = {'x86' : x86_cflags, 'x64' : x64_cflags , 'arm' : arm_cflags}

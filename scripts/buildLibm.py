@@ -22,7 +22,7 @@ import shutil
 import os
 
 def doLibm(builddir, inputLibmA, ar, cc, libgcc):
-    print "Building libm...",
+    print("Building libm...", end=' ')
     
     tmpdir = tempfile.mkdtemp()
     
@@ -41,7 +41,7 @@ def doLibm(builddir, inputLibmA, ar, cc, libgcc):
     os.chdir(olddir)
     os.rmdir(tmpdir)
 
-    print "ok!"
+    print("ok!")
 
 import sys
 doLibm(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], "")

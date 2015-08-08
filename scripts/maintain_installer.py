@@ -170,14 +170,14 @@ def addFile(fList, srcDir, destDir, compulsory = "yes"):
             fileMd5 = Md5OfFile(srcDir).hexdigest()
         newEntry += srcDir + " " + destDir + " " + fileMd5 + " " + compulsory + "\n"
     except IOError:
-        print "Couldn't access the file '" + baseDir + srcDir + "' for MD5 calculation!"
+        print("Couldn't access the file '" + baseDir + srcDir + "' for MD5 calculation!")
         return fList
     
     ret = fList + newEntry
     if(ret == fList):
-        print "No file was added - check your filename and try again?"
+        print("No file was added - check your filename and try again?")
     else:
-        print "File added."
+        print("File added.")
     return ret
 
 def removeFile(fList, path):
@@ -214,9 +214,9 @@ def removeFile(fList, path):
     # Return the cleaned list
     ret = '\n'.join(dirList)
     if(ret == fList):
-        print "No file was removed - check your filename and try again?"
+        print("No file was removed - check your filename and try again?")
     else:
-        print "File removed."
+        print("File removed.")
     return ret
 
 def listFiles(fList, dir = "/"):
@@ -234,7 +234,7 @@ def listFiles(fList, dir = "/"):
         
         # Match against the passed directory
         m = re.match(dir, d)
-        if(m <> None):
+        if m is not None:
             dirList += [d]
     
     # And now match against the directory
@@ -245,16 +245,16 @@ def main(argc, argv):
         fList = Read(fileList)
         fCleanList = Sanitize(fList)
     except IOError:
-        print "Couldn't find the file list - I'm looking in:"
-        print fileList
-        print "Make sure it exists and I can access it."
+        print("Couldn't find the file list - I'm looking in:")
+        print(fileList)
+        print("Make sure it exists and I can access it.")
         return 0
     except:
-        print "Unknown error accessing the file list!"
+        print("Unknown error accessing the file list!")
         return 0
     
     if(argc < 2):
-        print "Not enough arguments passed!"
+        print("Not enough arguments passed!")
         return 0
     
     if(argv[1] == "list"):
@@ -266,10 +266,10 @@ def main(argc, argv):
         try:
             fList = addFile(fList, argv[2], argv[3], argv[4])
         except IndexError:
-            print "Not enough arguments passed for the add command!"
+            print("Not enough arguments passed for the add command!")
             return 0;
         except:
-            print "Unhandled error occurred while adding file"
+            print("Unhandled error occurred while adding file")
             return 0
         
         Write(fileList, fList)
@@ -278,18 +278,18 @@ def main(argc, argv):
         try:
             fList = removeFile(fList, argv[2])
         except IndexError:
-            print "Not enough arguments passed for the remove command!"
+            print("Not enough arguments passed for the remove command!")
             raise
             return 0;
         except:
-            print "Unhandled error occurred while removing file"
+            print("Unhandled error occurred while removing file")
             raise
             return 0
         
         Write(fileList, fList)
 
 if(len(sys.argv) <= 1):
-    print "No parameters passed!"
+    print("No parameters passed!")
 else:
     main(len(sys.argv), sys.argv)
 
